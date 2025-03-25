@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//screen to show the recipe search and results
 @Composable
 fun RecipeScreen(viewModel: RecipeSearchViewModel = viewModel()) {
     var search by remember { mutableStateOf("") }
@@ -76,19 +77,20 @@ fun RecipeScreen(viewModel: RecipeSearchViewModel = viewModel()) {
                 Text("Get Recipes", fontSize = 20.sp)
             }
 
+            //show different things based on the viewmodel state
             when (searchState) {
-                RecipeSearchViewModel.SearchState.Initial -> {}
-                RecipeSearchViewModel.SearchState.Loading -> {
+                RecipeSearchViewModel.SearchState.Initial -> {}    //show nothing on initial state
+                RecipeSearchViewModel.SearchState.Loading -> {      //show loading icon when loading
                     CircularProgressIndicator()
                 }
 
-                is RecipeSearchViewModel.SearchState.Success -> {
+                is RecipeSearchViewModel.SearchState.Success -> {   //show search results on search success
                     val searchResponse =
                         (searchState as RecipeSearchViewModel.SearchState.Success).searchResponse
                     ShowRecipes(searchResponse)
                 }
 
-                is RecipeSearchViewModel.SearchState.Error -> {
+                is RecipeSearchViewModel.SearchState.Error -> {     //show error on search fail
                     val errorMessage =
                         (searchState as RecipeSearchViewModel.SearchState.Error).errorMessage
                     Text("Error: $errorMessage", fontSize = 20.sp)
@@ -98,6 +100,7 @@ fun RecipeScreen(viewModel: RecipeSearchViewModel = viewModel()) {
     }
 }
 
+//shows list of search results
 @Composable
 fun ShowRecipes(searchResponse: SearchResponse){
     val scrollState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
@@ -106,10 +109,11 @@ fun ShowRecipes(searchResponse: SearchResponse){
         userScrollEnabled = true
     ){
         if(searchResponse.meals == null){
-            item(){ Text(text = "No recipes found :(") }
+            item{ Text(text = "No recipes found :(") }
         } else {
             items(searchResponse.meals.size) { i ->
                 val recipe = searchResponse.meals[i]
+                //use asyncImagePainter to load the image from the url
                 val painter = rememberAsyncImagePainter(model = recipe.imageUrl)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
